@@ -2,7 +2,7 @@ import flet as ft
 
 def login_page(page: ft.Page):
 
-    page.bgcolor=ft.Colors.WHITE30
+    page.bgcolor=ft.Colors.BROWN
 
 
     def go_home(e):
@@ -19,8 +19,8 @@ def login_page(page: ft.Page):
                     spacing=50,
                     controls=[
 
-                        ft.Text(value="AgroCodeSoil",color=ft.Colors.BLACK,size=50,weight=ft.FontWeight.W_600),
-                        ft.ElevatedButton(text="Entrar",color=ft.Colors.WHITE,width=150,on_click=go_home)
+                        ft.Text(value="AgroCodeSoil",color=ft.Colors.WHITE,size=50,weight=ft.FontWeight.W_400),
+                        ft.Button(text="Entrar",bgcolor=ft.Colors.GREY,color=ft.Colors.BLACK,width=150,on_click=go_home)
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     alignment=ft.MainAxisAlignment.CENTER
