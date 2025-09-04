@@ -1,9 +1,7 @@
 import flet as ft
 
-elementos = ft.Column()
 
-
-def selecionar_processos(e):
+def selecionar_processos(e, elementos):
 
     elementos.controls.clear()
     elementos.spacing = 30
@@ -20,6 +18,11 @@ def selecionar_processos(e):
 
         if not elementos.controls:
             elementos.controls.append(ft.TextField(label="Amostra")),
+            elementos.controls.append(ft.TextField(label="Argila")),
+            elementos.controls.append(ft.TextField(label="CTC pH7")),
+            elementos.controls.append(ft.TextField(label="Matéria Orgânica")),
+            elementos.controls.append(ft.TextField(label="Fósforo")),
+            elementos.controls.append(ft.TextField(label="Potássio")),
             elementos.controls.append(ft.ElevatedButton(text="Enviar"))
 
     elementos.update()

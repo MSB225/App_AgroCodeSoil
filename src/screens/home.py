@@ -28,7 +28,7 @@ def home_page(page: ft.Page):
             controls=[
                 ft.Dropdown(
                     expand=True,
-                    on_change=selecionar_processos,
+                    on_change=lambda e: selecionar_processos(e, elementos),
                     options=[
                         ft.dropdown.Option(key="Calagem"),
                         ft.dropdown.Option(key="Adubação"),
