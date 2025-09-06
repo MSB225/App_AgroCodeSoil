@@ -5,6 +5,8 @@ from components.component_home import selecionar_processos
 
 def home_page(page: ft.Page):
 
+
+
     def go_login(e):
         page.go("/")
 
@@ -23,18 +25,29 @@ def home_page(page: ft.Page):
     Content = ft.Container(
         expand=True,
         bgcolor=ft.Colors.WHITE,
-        padding=10,
         content=ft.ResponsiveRow(
             controls=[
-                ft.Dropdown(
-                    expand=True,
-                    on_change=lambda e: selecionar_processos(e, elementos),
-                    options=[
-                        ft.dropdown.Option(key="Calagem"),
-                        ft.dropdown.Option(key="Adubação"),
-                    ],
+                ft.Container(
+                    padding=20,
+                    content=ft.ResponsiveRow(
+                        controls=[
+                            ft.Text("Selecione um Processo",color="black",size=12,weight=ft.FontWeight.W_600),
+                            ft.Dropdown(
+                                expand=True,
+                                on_change=lambda e: selecionar_processos(e, elementos),
+                                label_content="Defina o Processo",
+                                color="black",
+                                options=[
+                                    ft.dropdown.Option(key="Calagem"),
+                                    ft.dropdown.Option(key="Adubação"),
+                                ],
+                            ),
+                        ]
+                    ),
                 ),
-                elementos,
+                ft.Container(
+                    padding=20, content=ft.ResponsiveRow(controls=[elementos])
+                ),
             ]
         ),
     )

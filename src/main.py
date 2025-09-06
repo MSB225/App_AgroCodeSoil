@@ -5,7 +5,6 @@ from screens.home import home_page
 
 def main(page: ft.Page):
 
-    page.bgcolor = ft.Colors.WHITE70
     page.padding = 0
 
     def route_change(route):
