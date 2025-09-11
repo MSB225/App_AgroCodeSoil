@@ -14,7 +14,6 @@ def main(page: ft.Page):
 
         elif page.route == "/home":
             home_page(page)
-
         page.update()
 
     page.on_route_change = route_change
