@@ -1,6 +1,7 @@
 import flet as ft
 
-from components.component_home import selecionar_processos
+from components.component_home import criarCampos
+from components.component_home_tabela import criarTabela
 
 
 def home_page(page: ft.Page):
@@ -15,7 +16,7 @@ def home_page(page: ft.Page):
         elif idx == 1:
             content.content = tabela_content
         elif idx == 2:
-            content.content = "#"
+            content.content = pdf_content
         content.update()  # força a renderização
 
     page.clean()
@@ -45,7 +46,7 @@ def home_page(page: ft.Page):
                             ),
                             ft.Dropdown(
                                 expand=True,
-                                on_change=lambda e: selecionar_processos(e, elementos),
+                                on_change=lambda e: criarCampos(e, elementos,page),
                                 label_content="Defina o Processo",
                                 color="black",
                                 options=[
@@ -68,6 +69,7 @@ def home_page(page: ft.Page):
             controls=[ft.Text(value="Essa é a pagina das tabelas")]
         )
     )
+    pdf_content = ft.Container()
 
     content = ft.Container(content=home_content)
 
