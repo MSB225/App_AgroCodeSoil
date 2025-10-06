@@ -1,7 +1,6 @@
 import flet as ft
 
 from components.component_home import criarCampos
-from components.component_home_tabela import criarTabela
 
 
 def home_page(page: ft.Page):
@@ -30,6 +29,7 @@ def home_page(page: ft.Page):
     )
 
     elementos = ft.Column()
+    conteudo_tabela=ft.Column()
 
     home_content = ft.Container(
         content=ft.ResponsiveRow(
@@ -46,7 +46,7 @@ def home_page(page: ft.Page):
                             ),
                             ft.Dropdown(
                                 expand=True,
-                                on_change=lambda e: criarCampos(e, elementos,page),
+                                on_change=lambda e: (criarCampos(e,page,elementos,conteudo_tabela)),
                                 label_content="Defina o Processo",
                                 color="black",
                                 options=[
@@ -64,11 +64,15 @@ def home_page(page: ft.Page):
         ),
     )
 
+
+
     tabela_content = ft.Container(
         content=ft.ResponsiveRow(
-            controls=[ft.Text(value="Essa é a pagina das tabelas")]
+            controls=[conteudo_tabela]
         )
     )
+
+
     pdf_content = ft.Container()
 
     content = ft.Container(content=home_content)
