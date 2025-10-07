@@ -1,9 +1,13 @@
 import flet as ft
+import random
 import json
 
-from logics.interpretation import interpretar_saturação_por_bases , interpretar_ctc_ph7
+from logics.interpretation import resultado_amostra,interpretarSaturacaoBase,interpretarCTC_pH7
 
-array_dados=[]
+lista_dados=[]
+lista_amostra=[]
+
+print(resultado_amostra)
 
 def criarCampos(e,page,elementos,conteudo_tabela):
 
@@ -58,7 +62,7 @@ def criarCampos(e,page,elementos,conteudo_tabela):
         controls=[
             ft.ElevatedButton(
                 text="Enviar",
-                on_click=lambda e: guardarValores(e,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela),
+                on_click=lambda e: (interpretarSaturacaoBase(saturacao_base,resultado_amostra),interpretarCTC_pH7(ctc_ph7,resultado_amostra),guardarValores(e,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela)),
                 expand=True,
                 style=ft.ButtonStyle(
                     bgcolor={
@@ -129,21 +133,32 @@ def guardarValores(e,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela):
     saturacaoBase = saturacao_base.value
     ctcpH7 = ctc_ph7.value
 
-    dados = {
+    dados_valores = {
+
+        "id": random.randint(100000, 999999),
         "amostra": amostraCalagem,
         "saturacao_base": saturacaoBase,
         "ctc_ph7": ctcpH7,
     }
 
-    array_dados.append(dados)
+    dados_amostra={
 
-    lista_registros.append(dados)
+        "id": random.randint(100000, 999999),
+        "amostra": amostraCalagem,
+        "saturacao_base": resultado_amostra.SaturacaoBase,
+        "ctc_ph7": resultado_amostra.CTCpH7
+
+    }
+
+    lista_amostra.append(dados_amostra)
+
+    lista_registros.append(dados_amostra)
 
     novo_json_string = json.dumps(lista_registros)
 
     page.client_storage.set("dados_calagem",novo_json_string)
 
-    criarTabela(e,array_dados,conteudo_tabela,page)
+    criarTabela(e,lista_amostra,conteudo_tabela,page)
     limparCampos(amostra,saturacao_base,ctc_ph7)
 
     #print("Valores salvos:", dados)
@@ -152,13 +167,17 @@ def guardarValores(e,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela):
 
 def criarTabela(e,array_dados,conteudo_tabela,page):
 
+    dados_da_amostra = array_dados[-1]
+
+    amostra_id = dados_da_amostra['id']
+
     lista = ft.ListTile(
                 leading=ft.Icon(ft.Icons.ALBUM),
-                title=ft.Text(value=f'Amostra: {array_dados[-1]['amostra']}  Saturação por Base: {array_dados[-1]['saturacao_base']}  CTC pH7: {array_dados[-1]['ctc_ph7']}',color=ft.Colors.BLACK),
+                title=ft.Text(value=f'Amostra: {dados_da_amostra['amostra']}  Saturação por Base: {dados_da_amostra['saturacao_base']}  CTC pH7: {dados_da_amostra['ctc_ph7']}',color=ft.Colors.BLACK),
                 trailing=ft.PopupMenuButton(
                     icon=ft.Icons.MORE_VERT,
                     items=[
-                        ft.PopupMenuItem(text="Excluir",on_click=lambda e: excluirAmostra(e,lista,conteudo_tabela)),
+                        ft.PopupMenuItem(text="Excluir",on_click=lambda e: excluirAmostra(e,lista,conteudo_tabela,amostra_id,page)),
                         ft.PopupMenuItem(text="Salvar",on_click=lambda e: salvarAmostra(e,page,array_dados)),
                     ],
                 ),
@@ -167,10 +186,37 @@ def criarTabela(e,array_dados,conteudo_tabela,page):
     conteudo_tabela.controls.append(lista)
 
 
-def excluirAmostra(e,lista,conteudo_tabela):
+def excluirAmostra(e, lista, conteudo_tabela, amostra_id, page):
+    # 1. Obter a string JSON do client_storage
+    json_string_salva = page.client_storage.get("dados_calagem")
 
+    if json_string_salva:
+        # 2. Converte para a lista Python
+        lista_registros = json.loads(json_string_salva)
+        
+        # 3. Filtrar a lista, removendo o objeto com o ID
+        # Usamos uma 'list comprehension' ou 'filter' para criar uma nova lista
+        # que inclui apenas os dicionários onde o 'id' NÃO é igual ao amostra_id.
+        lista_atualizada = [
+            registro for registro in lista_registros 
+            if registro.get('id') != amostra_id
+        ]
+
+        # 4. Converte a lista atualizada de volta para string JSON
+        novo_json_string = json.dumps(lista_atualizada)
+
+        # 5. Gravar a nova string JSON no client_storage
+        page.client_storage.set("dados_calagem", novo_json_string)
+
+    # 6. Remover o item visualmente da tabela
     conteudo_tabela.controls.remove(lista)
+    
+    # 7. Atualizar a UI do Flet
     conteudo_tabela.update()
+    
+    # Opcional: Atualizar a página inteira se a remoção for crítica
+    # page.update() 
+
 
 
 def salvarAmostra(e,page,dado):
@@ -190,6 +236,7 @@ def salvarAmostra(e,page,dado):
     # Salva novamente
     page.client_storage.set("amostraSalvas", json.dumps(dados_lista))
    
+    ft.Aler
 
 def limparCampos(amostra,saturacao_base,ctc_ph7):
 
