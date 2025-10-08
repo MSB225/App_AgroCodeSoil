@@ -1,7 +1,7 @@
 
 resultado_amostra={}
 
-def interpretarSaturacaoBase(saturacao_base,resultado_amostra):
+def interpretarSaturacaoBase(saturacao_base):
     
     try:
         # Tenta converter input1 para float
@@ -37,7 +37,7 @@ def interpretarSaturacaoBase(saturacao_base,resultado_amostra):
         return "Por favor, insira um valor numérico válido para o pH."
 
 
-def interpretarCTC_pH7(ctc_ph7,resultado_amostra):
+def interpretarCTC_pH7(ctc_ph7):
     
     try:
         # Tenta converter input1 para float
@@ -68,6 +68,3 @@ def interpretarCTC_pH7(ctc_ph7,resultado_amostra):
     except ValueError:
         return "Por favor, insira um valor numérico válido para o pH."
 
-    
-
-print(resultado_amostra)
