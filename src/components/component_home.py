@@ -4,8 +4,9 @@ import json
 
 from logics.interpretation import resultado_amostra,interpretarSaturacaoBase,interpretarCTC_pH7
 
-lista_dados=[]
-lista_amostra=[]
+lista_valores=[]
+lista_amostras=[]
+Id = random.randint(100000, 999999)
 
 def criarCampos(e,page,elementos,conteudo_tabela):
 
@@ -60,7 +61,7 @@ def criarCampos(e,page,elementos,conteudo_tabela):
         controls=[
             ft.ElevatedButton(
                 text="Enviar",
-                on_click=lambda e: (interpretarSaturacaoBase(saturacao_base),interpretarCTC_pH7(ctc_ph7),guardarValores(e,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela)),
+                on_click=lambda e: (interpretarSaturacaoBase(saturacao_base),interpretarCTC_pH7(ctc_ph7),guardarDados(e,Id,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela),guardarValores(e,Id,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela)),
                 expand=True,
                 style=ft.ButtonStyle(
                     bgcolor={
@@ -115,53 +116,77 @@ def criarCampos(e,page,elementos,conteudo_tabela):
 
     elementos.update()
 
- 
-def guardarValores(e,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela):
 
-    json_string_salva = page.client_storage.get("dadosAmostra") # lista_dados
-    json_string_salva = page.client_storage.get("dadosValores") # lista_valores
+
+def guardarDados(e,Id,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela):
+
+    dadosAmostra = page.client_storage.get("dadosAmostra") # lista_dados
 
     # Converte para a lista Python (array) ou inicializa como lista vazia
-    if json_string_salva:
-        lista_registros = json.loads(json_string_salva)
+    if dadosAmostra:
+        lista_registros_amostras = json.loads(dadosAmostra)
     else:
         # Se for a primeira vez, cria a lista vazia
-        lista_registros = []
+        lista_registros_amostras = []
 
     amostraCalagem = amostra.value
-    saturacaoBase = saturacao_base.value
-    ctcpH7 = ctc_ph7.value
-
-    dados_valores = {
-
-        "id": random.randint(100000, 999999),
-        "amostra": amostraCalagem,
-        "saturacao_base": saturacaoBase,
-        "ctc_ph7": ctcpH7,
-    }
 
     dados_amostra={
 
-        "id": random.randint(100000, 999999),
+        "id": Id,
         "amostra": amostraCalagem,
         "saturacao_base": resultado_amostra["SaturacaoBase"],
         "ctc_ph7": resultado_amostra["CTCpH7"]
 
     }
 
-    lista_amostra.append(dados_amostra)
+    # salvar os dados amostra
 
-    lista_registros.append(dados_amostra)
+    lista_amostras.append(dados_amostra)
 
-    novo_json_string = json.dumps(lista_registros)
+    lista_registros_amostras.append(dados_amostra)
 
-    page.client_storage.set("dadosAmostra",novo_json_string)
+    novo_json_string_amostras = json.dumps(lista_registros_amostras)
 
-    criarTabela(e,lista_amostra,conteudo_tabela,page)
+    page.client_storage.set("dadosAmostra",novo_json_string_amostras)
+
+    criarTabela(e,lista_amostras,conteudo_tabela,page)
     limparCampos(amostra,saturacao_base,ctc_ph7)
+    
 
-    #print("Valores salvos:", dados)
-    #print(array_dados)
+def guardarValores(e,Id,page,amostra,saturacao_base,ctc_ph7,conteudo_tabela):
+
+    dadosValores = page.client_storage.get("dadosValores") # lista_valores
+
+    # Converte para a lista Python (array) ou inicializa como lista vazia
+    if dadosValores:
+        lista_registros_valores = json.loads(dadosValores)
+    else:
+        # Se for a primeira vez, cria a lista vazia
+        lista_registros_valores = []
+
+    
+    amostraCalagem = amostra.value
+    saturacaoBase = saturacao_base.value
+    ctcpH7 = ctc_ph7.value
+
+    dados_valores = {
+
+        "id": Id,
+        "amostra": amostraCalagem,
+        "saturacao_base": saturacaoBase,
+        "ctc_ph7": ctcpH7,
+    }
+
+    # salvar os dados valores
+
+    lista_valores.append(dados_valores)
+
+    lista_registros_valores.append(dados_valores)
+
+    novo_json_string_valores = json.dumps(lista_registros_valores)
+
+    page.client_storage.set("dadosValores",novo_json_string_valores)
 
 
 def criarTabela(e,array_dados,conteudo_tabela,page):
@@ -176,7 +201,7 @@ def criarTabela(e,array_dados,conteudo_tabela,page):
                 trailing=ft.PopupMenuButton(
                     icon=ft.Icons.MORE_VERT,
                     items=[
-                        ft.PopupMenuItem(text="Excluir",on_click=lambda e: excluirAmostra(e,lista,conteudo_tabela,amostra_id,page)),
+                        ft.PopupMenuItem(text="Excluir",on_click=lambda e: (excluirDadosAmostras(e,lista,conteudo_tabela,amostra_id,page),excluirDadosValores(e,conteudo_tabela, amostra_id, page))) ,
                         ft.PopupMenuItem(text="Salvar",on_click=lambda e: salvarAmostra(e,page,array_dados)),
                     ],
                 ),
@@ -185,27 +210,28 @@ def criarTabela(e,array_dados,conteudo_tabela,page):
     conteudo_tabela.controls.append(lista)
 
 
-def excluirAmostra(e, lista, conteudo_tabela, amostra_id, page):
+def excluirDadosAmostras(e, lista, conteudo_tabela, amostra_id, page):
+    
     # 1. Obter a string JSON do client_storage
-    json_string_salva = page.client_storage.get("dadosAmostra")
+    json_string_salva_amostras = page.client_storage.get("dadosAmostra")
 
-    if json_string_salva:
+    if json_string_salva_amostras:
         # 2. Converte para a lista Python
-        lista_registros = json.loads(json_string_salva)
+        lista_registros_amostras = json.loads(json_string_salva_amostras)
         
         # 3. Filtrar a lista, removendo o objeto com o ID
         # Usamos uma 'list comprehension' ou 'filter' para criar uma nova lista
         # que inclui apenas os dicionários onde o 'id' NÃO é igual ao amostra_id.
-        lista_atualizada = [
-            registro for registro in lista_registros 
+        lista_atualizada_amostras = [
+            registro for registro in lista_registros_amostras 
             if registro.get('id') != amostra_id
         ]
 
         # 4. Converte a lista atualizada de volta para string JSON
-        novo_json_string = json.dumps(lista_atualizada)
+        novo_json_string_amostras = json.dumps(lista_atualizada_amostras)
 
         # 5. Gravar a nova string JSON no client_storage
-        page.client_storage.set("dadosAmostra", novo_json_string)
+        page.client_storage.set("dadosAmostra", novo_json_string_amostras)
 
     # 6. Remover o item visualmente da tabela
     conteudo_tabela.controls.remove(lista)
@@ -216,8 +242,30 @@ def excluirAmostra(e, lista, conteudo_tabela, amostra_id, page):
     # Opcional: Atualizar a página inteira se a remoção for crítica
     # page.update() 
 
+def excluirDadosValores(e,conteudo_tabela, amostra_id, page):
 
+    # 1. Obter a string JSON do client_storage
+    json_string_salva_valores = page.client_storage.get("dadosValores")
 
+    if json_string_salva_valores:
+        # 2. Converte para a lista Python
+        lista_registros_valores = json.loads(json_string_salva_valores)
+        
+        # 3. Filtrar a lista, removendo o objeto com o ID
+        # Usamos uma 'list comprehension' ou 'filter' para criar uma nova lista
+        # que inclui apenas os dicionários onde o 'id' NÃO é igual ao amostra_id.
+        lista_atualizada_valores = [
+            registro for registro in lista_registros_valores 
+            if registro.get('id') != amostra_id
+        ]
+
+        # 4. Converte a lista atualizada de volta para string JSON
+        novo_json_string_valores = json.dumps(lista_atualizada_valores)
+
+        # 5. Gravar a nova string JSON no client_storage
+        page.client_storage.set("dadosValores", novo_json_string_valores)
+
+ 
 def salvarAmostra(e,page,dado):
 
     """Salva os dados localmente no client_storage"""
@@ -235,7 +283,6 @@ def salvarAmostra(e,page,dado):
     # Salva novamente
     page.client_storage.set("amostraSalvas", json.dumps(dados_lista))
    
-    ft.Aler
 
 def limparCampos(amostra,saturacao_base,ctc_ph7):
 
